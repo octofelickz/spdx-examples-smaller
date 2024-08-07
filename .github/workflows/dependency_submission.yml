@@ -1,0 +1,46 @@
+name: SPDX validation
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
+
+jobs:
+  find-sboms:
+    runs-on: ubuntu-latest
+    outputs:
+      sboms: ${{ steps.generate_js_array.outputs.sboms }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Find SBOM files and set output
+        id: generate_js_array
+        run: |
+          sboms=$(find . \( -path '*/spdx2.2/*' -o -path '*/spdx2.3/*' \) -name '*.json' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "::set-output name=sboms::$sboms"
+
+  process-sboms:
+    needs: find-sboms
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sbom: ${{ fromJson(needs.find-sboms.outputs.sboms) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: SBOM upload
+        uses: advanced-security/spdx-dependency-submission-action@v0.1.1
+        with:
+          filePath: "${{ matrix.sbom }}"
+
+      # - name: Validate SPDX 3.0 Documents
+      #   run: |
+      #     SPDX30_SCHEMA_URL="https://spdx.org/schema/3.0.0/spdx-json-schema.json"
+      #     SPDX30_SHACL_URL="https://spdx.org/rdf/3.0.0/spdx-model.ttl"
+
+      #     for f in $(find . -type f -path '*/spdx-3.0/*.json'); do
+      #         echo "Checking $f..."
+      #         check-jsonschema -v --schemafile $SPDX30_SCHEMA_URL $f
+      #         pyshacl -s $SPDX30_SHACL_URL -e $SPDX30_SHACL_URL $f
+      #     done
