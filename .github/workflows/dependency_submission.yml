@@ -10,7 +10,7 @@ jobs:
     outputs:
       sboms: ${{ steps.generate_js_array.outputs.sboms }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Find SBOM files and set output
         id: generate_js_array
@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: SBOM upload
         uses: advanced-security/spdx-dependency-submission-action@v0.1.1
