@@ -15,7 +15,7 @@ jobs:
       - name: Find SBOM files and set output
         id: generate_js_array
         run: |
-          sboms=$(find . \( -path '*/spdx2.2/*' -o -path '*/spdx2.3/*' \) -name '*.json' | xargs -n 1 dirname | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          sboms=$(find . \( -path '*/spdx2.2/*' -o -path '*/spdx2.3/*' \) -name '*.spdx.json' | xargs -n 1 dirname | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "sboms=$sboms" >> $GITHUB_OUTPUT
 
   process-sboms:
