@@ -1,4 +1,4 @@
-name: SPDX validation
+name: SPDX Dependency Graph Snapshot Submission
 on:
   - pull_request
   - push
@@ -16,7 +16,7 @@ jobs:
         id: generate_js_array
         run: |
           sboms=$(find . \( -path '*/spdx2.2/*' -o -path '*/spdx2.3/*' \) -name '*.json' | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "::set-output name=sboms::$sboms"
+          echo "sboms=$sboms" >> $GITHUB_OUTPUT
 
   process-sboms:
     needs: find-sboms
